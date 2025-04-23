@@ -24,12 +24,3 @@ jobs:
         run: |
           ssh-keyscan -p ${{ secrets.EC2_PORT }} -H ${{ secrets.EC2_HOST_RAW }} >> ~/.ssh/known_hosts
 
-      - name: Executa o deploy via SSH
-        run: |
-          ssh -p ${{ secrets.EC2_PORT }} ${{ secrets.EC2_HOST_WITH_USER }} << 'EOF'
-          cd ${{ secrets.EC2_PROJECT_PATH }}
-          git config --global --add safe.directory ${{ secrets.EC2_PROJECT_PATH }}
-          git pull origin master
-          cd backend/
-          sudo docker compose up -d --build --force-recreate
-          EOF
