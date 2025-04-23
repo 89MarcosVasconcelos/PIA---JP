@@ -20,4 +20,3 @@ jobs:
           REMOTE_HOST: "ec2-3-85-210-20.compute-1.amazonaws.com"
           REMOTE_USER: "ec2-user"
           TARGET: "/home/ec2-user"
-          EXCLUDE: /dist/,/git/, /node_modules/, **/.env, rebuild_app.sh, watcher.sh
