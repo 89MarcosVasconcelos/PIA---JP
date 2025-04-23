@@ -1,12 +1,15 @@
 name: Push-to-EC2
+
 on:
   push:
     branches:
       - main
+
 jobs:
   deploy:
     name: Deploy to EC2
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout the files
         uses: actions/checkout@v3
@@ -14,9 +17,9 @@ jobs:
       - name: Copy files with SSH
         uses: easingthemes/ssh-deploy@main
         env:
-          SSH_PRIVATE_KEY: ${{secrets.EC2_SSH_KEY}}
-          ARGS: -rltgoDv2C --delete
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          ARGS: -rltgoDvC --delete
           SOURCE: ./
-          REMOTE_HOST: "ec2-44-223-27-238.compute-1.amazonaws.com"
-          REMOTE_USER: "ec2-user"
-          TARGET: "/home/ec2-user"
+          REMOTE_HOST: ec2-44-223-27-238.compute-1.amazonaws.com
+          REMOTE_USER: ec2-user
+          TARGET: /home/ec2-user
