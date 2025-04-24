@@ -29,6 +29,6 @@ jobs:
           ssh -p ${{ secrets.EC2_PORT }} ${{ secrets.EC2_HOST_WITH_USER }} << 'EOF'
             cd ${{ secrets.EC2_PROJECT_PATH }}
             git config --global --add safe.directory ${{ secrets.EC2_PROJECT_PATH }}
-            git pull origin master
+            git pull origin main
           EOF
 
