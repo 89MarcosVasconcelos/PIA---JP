@@ -26,7 +26,7 @@ jobs:
 
     - name: Executa o deploy via SSH
       run: |
-        ssh -p ${{ secrets.EC2_PORT }} ${{ secrets.EC2_HOST_WITH_USER }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no -p ${{ secrets.EC2_PORT }} ${{ secrets.EC2_HOST_WITH_USER }} << 'EOF'
           cd ${{ secrets.EC2_PROJECT_PATH }}
           git pull origin main
         EOF
