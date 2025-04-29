@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    container_name: django_app
+    command: gunicorn pia_project.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - static_volume:/staticfiles/
+      # - static_volume:/app/staticfiles
+    expose:
+      - "8001"
+    ports:
+      - "8001:8000"
+    # depends_on:
+    #   - db
+    restart: always
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    ports:
+      # - "80:80"
+      - "8000:8000"
+      # - "8001:8000"
+    volumes:
+      - static_volume:/staticfiles
+      # - ./staticfiles:/staticfiles  # mapeia para dentro do container nginx
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - web
+    restart: always
+
+  # db:
+  #   image: postgres:15
+  #   container_name: postgres_db
+  #   environment:
+  #     POSTGRES_DB: pia_db
+  #     POSTGRES_USER: pia_user
+  #     POSTGRES_PASSWORD: pia_pass
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+
+volumes:
+  static_volume:
+  # pgdata:
