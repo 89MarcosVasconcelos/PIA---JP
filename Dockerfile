@@ -1,28 +1,31 @@
-# Usa uma imagem do Python
-FROM python:3.12.6
+FROM python:3.12-slim
 
-# Evita criação de arquivos .pyc e faz logs saírem direto no console
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-# Define o diretório de trabalho no container
+# Define diretório de trabalho
 WORKDIR /app
 
-# Copia só o requirements primeiro (para aproveitar o cache em rebuilds)
-COPY requirements.txt /app/
+# Copia o arquivo de dependências
+COPY requirements.txt .
 
-# Instala as dependências
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install -r requirements.txt
+# Instala dependências do sistema e Python
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir --retries 10 --timeout 30 -r requirements.txt
 
-# Copia os arquivos do projeto para dentro do container
-COPY . /app
+# Copia os arquivos do projeto
+COPY . .
 
-# Coleta arquivos estáticos (se aplicável)
+# Garante que o diretório de arquivos estáticos exista
+RUN mkdir -p /app/staticfiles
+
+# Coleta os arquivos estáticos (necessário STATIC_ROOT no settings.py)
 RUN python manage.py collectstatic --noinput
 
-# Expõe a porta do Gunicorn
+# Expõe a porta usada pelo Gunicorn
 EXPOSE 8000
 
-# Comando para rodar o Gunicorn no container
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "pia_project.wsgi:application"]
+# Inicia o Gunicorn com o WSGI do seu projeto Django
+CMD ["gunicorn", "pia_project.wsgi:application", "--bind", "0.0.0.0:8000"]
