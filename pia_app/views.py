@@ -174,8 +174,8 @@ class AgendaUsuarioPagoDetailAPIView(APIView):
             raise Http404
 
     def get(self, request, pk):
-        agendaUsuarioPago = self.get_object(pk)
-        serializer = AgendaUsuarioPagoSerializer(agendaUsuarioPago)
+        agenda_usuario_pago = AgendaUsuarioPago.objects.filter(id_usuario_pago=pk)  # Retorna um QuerySet
+        serializer = AgendaUsuarioPagoSerializer(agenda_usuario_pago, many=True)  # Defina many=True para múltiplos objetos
         return Response(serializer.data)
 
     def put(self, request, pk):

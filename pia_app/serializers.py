@@ -21,13 +21,20 @@ class UsuarioPagoSerializer(serializers.ModelSerializer):
         fields = ['id_pessoa', 'nome', 'cpf', 'telefone', 'preco_hora', 'celular', 'endereco', 'disponivel']  # Incluindo apenas id e nome nos campos
 
 
+from datetime import datetime, date
+
 class AgendaUsuarioPagoSerializer(serializers.ModelSerializer):
-    # quadra = QuadraSerializer(read_only=True)
     compromisso = serializers.CharField(required=True)
-    id_usuario_pago = serializers.IntegerField(required=True) 
-    data_hora_inicio = serializers.DateTimeField(required=True) 
-    data_hora_fim = serializers.DateTimeField(required=True) 
-    
+    data_hora_inicio = serializers.DateTimeField(required=True)
+    data_hora_fim = serializers.DateTimeField(required=True)
+    id_usuario_pago = serializers.IntegerField(required=True)
+
     class Meta:
         model = AgendaUsuarioPago
-        fields = ['compromisso','data_hora_inicio', 'data_hora_fim', 'id_usuario_pago']
+        fields = ['compromisso', 'data_hora_inicio', 'data_hora_fim', 'id_usuario_pago']
+    
+    def validate(self, data):
+        if data['data_hora_inicio'] >= data['data_hora_fim']:
+            raise serializers.ValidationError("A data/hora de início deve ser anterior à data/hora de fim.")
+        return data
+   
