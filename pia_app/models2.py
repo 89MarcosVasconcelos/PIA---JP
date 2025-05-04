@@ -21,8 +21,8 @@ class UsuarioPago(models.Model):
     email = models.CharField(max_length=300)
     endereco = models.TextField()
     preco_hora = models.DecimalField(max_digits=6, decimal_places=2)
-    disponivel = models.BooleanField(default=True)
-    id_pessoa = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    disponivel = models.IntegerField()
+    id_pessoa = models.IntegerField()
 
     def __str__(self):
         return self.nome
@@ -30,10 +30,12 @@ class UsuarioPago(models.Model):
 
 class AgendaUsuarioPago(models.Model):
     id_agenda = models.CharField(max_length=10, primary_key=True)
-    compromisso = models.CharField(max_length=300)
+    compromisso = models.CharField(max_length=250)
     data_hora_inicio = models.DateTimeField()
     data_hora_fim = models.DateTimeField()
     id_usuario_pago = models.ForeignKey(UsuarioPago, on_delete=models.CASCADE)
+    aceitar = models.IntegerField()
+    
 
     def __str__(self):
         return self.compromisso

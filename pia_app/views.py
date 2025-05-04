@@ -178,6 +178,7 @@ class AgendaUsuarioPagoDetailAPIView(APIView):
         serializer = AgendaUsuarioPagoSerializer(agenda_usuario_pago, many=True)  # Defina many=True para múltiplos objetos
         return Response(serializer.data)
 
+
     def put(self, request, pk):
         """
         Atualiza todos os campos da AgendaUsuarioPago
@@ -204,6 +205,18 @@ class AgendaUsuarioPagoDetailAPIView(APIView):
         agendaUsuarioPago = self.get_object(pk)
         agendaUsuarioPago.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class UsuarioPagoAllRegisterDetailAPIView(APIView):
+    """
+    Retorna todos os registros de UsuarioPago filtrando por id_pessoa.
+    """
+    def get(self, request, pk):
+        usuario_pago = UsuarioPago.objects.filter(id_pessoa=pk)
+        serializer = UsuarioPagoSerializer(usuario_pago, many=True)
+        return Response(serializer.data)
+
+
+ 
 
 # from django.contrib.auth.models import User
 # from rest_framework import status
@@ -234,7 +247,38 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework import status
+from oauth2_provider.settings import oauth2_settings
+from oauth2_provider.oauth2_backends import get_oauthlib_core
 
+
+
+
+import json
+from django.http import JsonResponse
+from oauth2_provider.views import TokenView
+from oauth2_provider.models import AccessToken
+from oauthlib.oauth2.rfc6749.errors import OAuth2Error
+
+class CustomTokenView(TokenView):
+    def post(self, request, *args, **kwargs):
+        try:
+            response = super().post(request, *args, **kwargs)
+            response_data = json.loads(response.content.decode('utf-8'))
+            token = response_data.get("access_token")
+
+            if token:
+                access_token = AccessToken.objects.get(token=token)
+                user = access_token.user
+                response_data["id"] = user.id
+                response_data["username"] = user.username
+
+            return JsonResponse(response_data)
+        except OAuth2Error as e:
+            return JsonResponse(data=e.json, status=e.status_code)
+        except Exception as e:
+            return JsonResponse(data={'error': str(e)}, status=500)
+
+# API para registro de usuários
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def RegisterView(request):
@@ -247,5 +291,5 @@ def RegisterView(request):
     if User.objects.filter(username=username).exists():
         return Response({'error': 'Usuário já existe.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    User.objects.create_user(username=username, password=password, is_active=True)
+    user = User.objects.create_user(username=username, password=password, is_active=True)
     return Response({'message': 'Usuário criado com sucesso.'}, status=status.HTTP_201_CREATED)

@@ -16,14 +16,35 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from pia_app.views import (
+    UsuarioPagoListCreateAPIView,
+    AgendaUsuarioPagoListCreateAPIView,
+    UsuarioPagoDetailAPIView,
+    AgendaUsuarioPagoDetailAPIView,
+    CustomTokenView,
+    RegisterView
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # path('api/v2/', include('quadras.urls')),
+    # APIs organizadas por versão
     path('api/v1/', include('pia_app.urls_v1')),
     path('api/v2/', include('pia_app.urls_v2')),
 
-    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    # Rotas de autenticação OAuth2
+    #path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    path('o/token/', CustomTokenView.as_view(), name='token'),
 
+    # Rotas para usuários pagos
+    path('api/v1/usuario_pago/', UsuarioPagoListCreateAPIView.as_view(), name='usuario_pago_list_create'),
+    path('api/v1/usuario_pago/<int:pk>/', UsuarioPagoDetailAPIView.as_view(), name='usuario_pago_detail'),
+
+    # Rotas para agenda de usuários pagos
+    path('api/v1/agenda_usuario_pago/', AgendaUsuarioPagoListCreateAPIView.as_view(), name='agenda_usuario_pago_list_create'),
+    path('api/v1/agenda_usuario_pago/<int:pk>/', AgendaUsuarioPagoDetailAPIView.as_view(), name='agenda_usuario_pago_detail'),
+
+    # Registro de usuários
+    path('api/v1/register/', RegisterView, name='register'),
 ]
+
